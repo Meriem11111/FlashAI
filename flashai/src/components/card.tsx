@@ -20,21 +20,36 @@ export default function TopicCard({onGenerate}: Props){
     const[flashcards, setFlashcards] = React.useState<Flashcard[]>([])
     const[currentIndex, setCurrentIndex] = React.useState(0)
     const[isAddingNew, setIsAddingNew] = React.useState(false)
+    // const [isGenerating, setIsGenerating] = React.useState(false)
 
-    const handleGenerate = () => {
-        if (topic.trim()) {
-            const newCard: Flashcard = {
-                question: topic,
-                answer: "This is the answer to: " + topic
-            }
-            setFlashcards([...flashcards, newCard])
-            setCurrentIndex(flashcards.length)
+    const handleGenerate = async () => {
+        if (!topic.trim()) 
+            return
+        
+        // setIsGenerating(true)
+        try {
+            const res = await fetch('/api/generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ topic })
+            })
+            
+            const data = await res.json()
+            if(data.cards && data.cards.length > 0) {
+                setFlashcards(data.cards)
+                setCurrentIndex(flashcards.length)
             setIsGenerated(true)
             setTopic('')
             setIsFlipped(false)
             onGenerate(topic.trim())
+            }
+        } catch (error) {
+            console.error('Error generating flashcards:', error)}
+        
         }
-    }
+    
 
     const handleNext = () => {
         if (currentIndex < flashcards.length - 1) {
