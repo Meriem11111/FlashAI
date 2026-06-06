@@ -101,20 +101,7 @@ export default function TopicCard({onGenerate}: Props){
                     />
 
                 <button
-                    onClick={() => {
-                        if (topic.trim()) {
-                            const newCard: Flashcard = {
-                                question: topic,
-                                answer: "This is the answer to: " + topic
-                            }
-                            setFlashcards([...flashcards, newCard])
-                            setCurrentIndex(flashcards.length)
-                            setTopic('')
-                            setIsFlipped(false)
-                            setIsAddingNew(false)
-                            onGenerate(topic.trim())
-                        }
-                    }}
+                    onClick={handleGenerate}
                     disabled={!topic.trim()}
                     className="mt-6 px-8 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition duration-300 shadow-md disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                 >
