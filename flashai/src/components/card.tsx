@@ -20,13 +20,15 @@ export default function TopicCard({onGenerate}: Props){
     const[flashcards, setFlashcards] = React.useState<Flashcard[]>([])
     const[currentIndex, setCurrentIndex] = React.useState(0)
     const[isAddingNew, setIsAddingNew] = React.useState(false)
-    // const [isGenerating, setIsGenerating] = React.useState(false)
+    const [isGenerating, setIsGenerating] = React.useState(false)
+    const [error, setError] = React.useState('')
 
     const handleGenerate = async () => {
         if (!topic.trim()) 
             return
         
-        // setIsGenerating(true)
+        setIsGenerating(true)
+        setError('')
         try {
             const res = await fetch('/api/generate', {
                 method: 'POST',
@@ -38,16 +40,23 @@ export default function TopicCard({onGenerate}: Props){
             
             const data = await res.json()
             if(data.cards && data.cards.length > 0) {
-                setFlashcards(data.cards)
-                setCurrentIndex(flashcards.length)
-            setIsGenerated(true)
-            setTopic('')
-            setIsFlipped(false)
-            onGenerate(topic.trim())
+                const newCards = isAddingNew ? [...flashcards, ...data.cards] : data.cards
+                setFlashcards(newCards)
+                setCurrentIndex(isAddingNew ? flashcards.length : 0)
+                setIsGenerated(true)
+                setIsAddingNew(false)
+                setTopic('')
+                setIsFlipped(false)
+                onGenerate(topic.trim())
+            } else {
+                setError('Failed to generate flashcards. Please try again.')
             }
         } catch (error) {
-            console.error('Error generating flashcards:', error)}
-        
+            console.error('Error generating flashcards:', error)
+            setError('Network error. Please check your connection and try again.')
+        } finally {
+            setIsGenerating(false)
+        }
         }
     
 
@@ -89,18 +98,26 @@ export default function TopicCard({onGenerate}: Props){
                     value={topic}
                     placeholder="Type your topic here..."
                     onChange={(e) => setTopic(e.target.value)}
-                    className="w-full h-48 bg-transparent border-none outline-none resize-none text-lg text-white placeholder-slate-400 font-semibold"
+                    disabled={isGenerating}
+                    className="w-full h-48 bg-transparent border-none outline-none resize-none text-lg text-white placeholder-slate-400 font-semibold disabled:opacity-50"
                 />
+                
+                {error && (
+                    <div className="mt-3 p-3 bg-red-600 text-white rounded-lg text-sm text-center w-full">
+                        {error}
+                    </div>
+                )}
 
                 <button
                     onClick={handleGenerate}
-                    disabled={!topic.trim()}
+                    disabled={!topic.trim() || isGenerating}
                     className="mt-6 px-8 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition duration-300 shadow-md disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                 >
-                    GENERATE
+                    {isGenerating ? 'GENERATING...' : 'GENERATE'}
                 </button>
             </div>
         )
+              
     }
 
     if (isAddingNew) {
@@ -112,15 +129,22 @@ export default function TopicCard({onGenerate}: Props){
                         value={topic}
                         placeholder="Type your next topic here..."
                         onChange={(e) => setTopic(e.target.value)}
-                        className="w-full h-48 bg-transparent border-none outline-none resize-none text-lg text-white placeholder-slate-400 font-semibold"
+                        disabled={isGenerating}
+                        className="w-full h-48 bg-transparent border-none outline-none resize-none text-lg text-white placeholder-slate-400 font-semibold disabled:opacity-50"
                     />
+                    
+                    {error && (
+                        <div className="mt-3 p-3 bg-red-600 text-white rounded-lg text-sm text-center w-full">
+                            {error}
+                        </div>
+                    )}
 
                 <button
                     onClick={handleGenerate}
-                    disabled={!topic.trim()}
+                    disabled={!topic.trim() || isGenerating}
                     className="mt-6 px-8 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition duration-300 shadow-md disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                 >
-                    GENERATE
+                    {isGenerating ? 'GENERATING...' : 'GENERATE'}
                 </button>
                 </div>
             </div>
