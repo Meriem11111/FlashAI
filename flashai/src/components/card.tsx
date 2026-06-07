@@ -13,6 +13,12 @@ type Flashcard = {
     answer: string;
 }
 
+type topicGroup = {
+    topic : string;
+    cards : Flashcard[];
+    startIndex: number;
+}
+
 export default function TopicCard({onGenerate}: Props){
     const[topic, setTopic] = React.useState('')
     const[isGenerated, setIsGenerated] = React.useState(false)
@@ -22,6 +28,7 @@ export default function TopicCard({onGenerate}: Props){
     const[isAddingNew, setIsAddingNew] = React.useState(false)
     const [isGenerating, setIsGenerating] = React.useState(false)
     const [error, setError] = React.useState('')
+    const[topicGrp, settopicGrp] = React.useState<topicGroup[]>([])
 
     const handleGenerate = async () => {
         if (!topic.trim()) 
@@ -41,6 +48,12 @@ export default function TopicCard({onGenerate}: Props){
             const data = await res.json()
             if(data.cards && data.cards.length > 0) {
                 const newCards = isAddingNew ? [...flashcards, ...data.cards] : data.cards
+                const newTopicGroup : topicGroup = {
+                    topic,
+                    cards: data.cards,
+                    startIndex: isAddingNew ? flashcards.length : 0,
+                }
+                settopicGrp([...topicGrp, newTopicGroup])
                 setFlashcards(newCards)
                 setCurrentIndex(isAddingNew ? flashcards.length : 0)
                 setIsGenerated(true)
@@ -153,7 +166,37 @@ export default function TopicCard({onGenerate}: Props){
 
     const currentCard = flashcards[currentIndex]
 
+ 
+
     return (
+        // topics 
+  <div className="flex gap-6 items-start">
+    
+   
+    <div className="w-48 bg-slate-800 bg-opacity-90 rounded-2xl p-4 shadow-lg border border-slate-700 flex flex-col gap-2">
+      <h3 className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-2">
+        Topics
+      </h3>
+      {topicGrp.map((group, i) => (
+        <button
+          key={i}
+          onClick={() => {
+            setCurrentIndex(group.startIndex)
+            setIsFlipped(false)
+          }}
+          className={`text-left px-3 py-2 rounded-lg text-sm font-semibold transition duration-200 truncate
+            ${currentIndex >= group.startIndex && 
+              (i === topicGrp.length - 1 || currentIndex < topicGrp[i + 1].startIndex)
+              ? 'bg-indigo-600 text-white'  
+              : 'text-slate-300 hover:bg-slate-700'
+            }`}
+        >
+          {group.topic}
+        </button>
+      ))}
+      </div>
+    
+
         <div className="flex flex-col items-center gap-4">
             <div 
                 onClick={() => setIsFlipped(!isFlipped)}
@@ -209,9 +252,10 @@ export default function TopicCard({onGenerate}: Props){
                     onClick={handleAddCard}
                     className="px-5 py-2 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition duration-300 shadow-md text-sm"
                 >
-                    + ADD CARD
+                    + ADD TOPIC
                 </button>
             </div>
+        </div>
         </div>
     )
 }
