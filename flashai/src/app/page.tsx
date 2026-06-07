@@ -7,8 +7,8 @@ export default function Home() {
 
   const [isStarted, setIsStarted] = React.useState(false);
   return (
-    <div className="pt-10 flex font-bold flex-col flex-1 items-center justify-center gap-8 font-sans min-h-screen bg-white">
-     <h1 className="text-6xl font-bold text-center text-gray-900 drop-shadow-lg">
+    <div className="pt-10 flex font-bold flex-col flex-1 items-center justify-center gap-8 font-sans min-h-screen bg-slate-900">
+     <h1 className="text-6xl font-bold text-center text-blue-900 drop-shadow-lg">
         FLASHAI
       </h1>
 
@@ -28,17 +28,10 @@ export default function Home() {
         <div className="flex flex-col items-center gap-6">
 
         <TopicCard
-          onGenerate={(topic) => {
-            console.log('Generate:', topic) 
-          }}
+          
+          onBack={() => setIsStarted(false)}
         />
         
-        <button
-          onClick={() => setIsStarted(false)}
-          className="px-8 py-4 bg-amber-700 text-white font-bold rounded-xl font-semibold hover:bg-olive-700 transition duration-300 shadow-lg"
-        >
-          GO BACK
-        </button>
 
         </div>
       )}

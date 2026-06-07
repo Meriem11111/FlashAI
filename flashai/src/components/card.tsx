@@ -4,8 +4,8 @@ import React from "react";
 // import Image from "next/image";
 
 type Props = {
-    onGenerate:(topic:string) => void
-    // onBack:()=>void
+    // onGenerate:(topic:string) => void
+    onBack:()=>void
 }
 
 type Flashcard = {
@@ -19,7 +19,7 @@ type topicGroup = {
     startIndex: number;
 }
 
-export default function TopicCard({onGenerate}: Props){
+export default function TopicCard({ onBack}: Props){
     const[topic, setTopic] = React.useState('')
     const[isGenerated, setIsGenerated] = React.useState(false)
     const[isFlipped, setIsFlipped] = React.useState(false)
@@ -60,7 +60,7 @@ export default function TopicCard({onGenerate}: Props){
                 setIsAddingNew(false)
                 setTopic('')
                 setIsFlipped(false)
-                onGenerate(topic.trim())
+                // onGenerate(topic.trim())
             } else {
                 setError('Failed to generate flashcards. Please try again.')
             }
@@ -166,11 +166,19 @@ export default function TopicCard({onGenerate}: Props){
 
     const currentCard = flashcards[currentIndex]
 
- 
-
     return (
-        // topics 
-  <div className="flex gap-6 items-start">
+    
+    <div className="flex gap-6 items-start">
+        
+    <div className="flex gap-6 items-start">  
+       <button
+        onClick={onBack}
+        className="px-8 py-4 bg-slate-500 text-white font-bold rounded-xl font-semibold hover:bg-slate-700 transition duration-300 shadow-lg"
+        >
+        GO BACK
+        </button>
+    </div>
+
     
    
     <div className="w-48 bg-slate-800 bg-opacity-90 rounded-2xl p-4 shadow-lg border border-slate-700 flex flex-col gap-2">
@@ -195,35 +203,39 @@ export default function TopicCard({onGenerate}: Props){
         </button>
       ))}
       </div>
-    
+
 
         <div className="flex flex-col items-center gap-4">
             <div 
-                onClick={() => setIsFlipped(!isFlipped)}
-                className="w-140 h-94 bg-slate-700 bg-opacity-90 p-8 rounded-2xl backdrop-blur-sm flex flex-col items-center justify-center shadow-lg border border-slate-800 cursor-pointer transition-transform duration-500 hover:shadow-2xl"
+            onClick={() => setIsFlipped(!isFlipped)}
+            className="w-140 h-94 cursor-pointer"
+            style={{ perspective: "1000px" }}>
+            <div
+                className="relative w-full h-full transition-transform duration-500"
                 style={{
                     transformStyle: "preserve-3d",
                     transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
                 }}
             >
-                <style>{`
-                    .flip-text {
-                        transform: rotateY(180deg);
-                    }
-                `}</style>
-                
-                {!isFlipped ? (
-                    <div className="text-center">
-                        <h3 className="text-2xl font-bold text-white mb-4">Question</h3>
-                        <p className="text-lg text-white">{currentCard.question}</p>
-                    </div>
-                ) : (
-                    <div className="text-center flip-text">
-                        <h3 className="text-2xl font-bold text-indigo-300 mb-4">Answer</h3>
-                        <p className="text-lg text-white">{currentCard.answer}</p>
-                    </div>
-                )}
+                <div
+                    className="absolute inset-0 bg-slate-700 bg-opacity-90 p-8 rounded-2xl backdrop-blur-sm flex flex-col items-center justify-center shadow-lg border border-slate-800"
+                    style={{ backfaceVisibility: "hidden" }}
+                >
+                    <h3 className="text-2xl font-bold text-white mb-4">Question</h3>
+                    <p className="text-lg text-white text-center">{currentCard.question}</p>
+                </div>
+                <div
+                    className="absolute inset-0 bg-slate-700 bg-opacity-90 p-8 rounded-2xl backdrop-blur-sm flex flex-col items-center justify-center shadow-lg border border-slate-800"
+                    style={{
+                        backfaceVisibility: "hidden",
+                        transform: "rotateY(180deg)",
+                    }}
+                >
+                    <h3 className="text-2xl font-bold text-indigo-300 mb-4">Answer</h3>
+                    <p className="text-lg text-white text-center">{currentCard.answer}</p>
+                </div>
             </div>
+        </div>
 
             <div className="flex gap-3 items-center justify-center flex-wrap">
                 {currentIndex > 0 && (
@@ -256,6 +268,6 @@ export default function TopicCard({onGenerate}: Props){
                 </button>
             </div>
         </div>
-        </div>
+    </div>
     )
 }
